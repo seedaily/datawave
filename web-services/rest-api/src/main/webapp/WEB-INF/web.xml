@@ -76,8 +76,6 @@
             datawave.webservice.modification.cache.ModificationCacheBean,
             <!-- From Model -->
             datawave.webservice.query.model.ModelBean,
-            <!-- From DataDictionary -->
-            datawave.webservice.datadictionary.DataDictionaryBean,
             <!-- From EdgeDictionary -->
             datawave.webservice.edgedictionary.EdgeDictionaryBean,
             <!-- From MapReduce -->
@@ -101,7 +99,6 @@
             datawave.webservice.query.interceptor.QueryMetricsEnrichmentInterceptor,
             datawave.webservice.util.HtmlProviderMessageBodyWriter,
             datawave.webservice.atom.jaxrs.AtomMessageBodyWriter,
-            datawave.webservice.datadictionary.DataDictionaryHtmlProvider,
             datawave.webservice.result.VoidResponseHtmlMessageBodyWriter,
             datawave.resteasy.util.DateParamConverterProvider,
             datawave.security.authorization.DatawaveUserHtmlMessageBodyWriter,

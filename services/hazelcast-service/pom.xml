@@ -13,8 +13,8 @@
     <properties>
         <start-class>datawave.microservice.cached.server.HazelcastService</start-class>
         <version.hazelcast-kubernetes>1.1.0</version.hazelcast-kubernetes>
-        <version.microservice.hazelcast-common>1.3</version.microservice.hazelcast-common>
-        <version.microservice.starter>1.2</version.microservice.starter>
+        <version.microservice.hazelcast-common>1.4-SNAPSHOT</version.microservice.hazelcast-common>
+        <version.microservice.starter>1.3-SNAPSHOT</version.microservice.starter>
     </properties>
     <dependencyManagement>
         <dependencies>

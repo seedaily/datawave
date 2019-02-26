@@ -50,7 +50,7 @@ abstract public class AbstractHtmlProviderHttpMessageConverter<T> extends Abstra
                 "<head>" +
                     "<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\"/>" +
                     "<title>DATAWAVE - " + getTitle(t) + "</title>" +
-                    "<link rel='stylesheet' type='text/css' href='" + datawaveServerProperties.getCssUri() + "' media='screen' />" +
+                    "<link rel='stylesheet' type='text/css' href='" + datawaveServerProperties.getCdnUri() + "screen.css' media='screen' />" +
                     getHeadContent(t) +
                 "</head>" +
                 "<body>" +

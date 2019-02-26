@@ -28,7 +28,7 @@ public class DatawaveServerProperties {
     private Integer nonSecurePort = null;
     
     @NotBlank
-    private String cssUri = "/screen.css";
+    private String cdnUri = "/";
     
     @Valid
     @NestedConfigurationProperty
@@ -42,12 +42,12 @@ public class DatawaveServerProperties {
         this.nonSecurePort = nonSecurePort;
     }
     
-    public String getCssUri() {
-        return cssUri;
+    public String getCdnUri() {
+        return cdnUri;
     }
     
-    public void setCssUri(String cssUri) {
-        this.cssUri = cssUri;
+    public void setCdnUri(String cdnUri) {
+        this.cdnUri = cdnUri;
     }
     
     public Cors getCors() {
