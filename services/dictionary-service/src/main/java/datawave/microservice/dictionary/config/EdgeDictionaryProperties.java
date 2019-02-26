@@ -3,11 +3,16 @@ package datawave.microservice.dictionary.config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
-@ConfigurationProperties(prefix = "datawave.edge.dictionary")
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Positive;
+
+@ConfigurationProperties(prefix = "datawave.dictionary.edge")
 @Validated
 public class EdgeDictionaryProperties {
     
+    @NotBlank
     private String metadataTableName;
+    @Positive
     private int numThreads;
     
     public String getMetadataTableName() {

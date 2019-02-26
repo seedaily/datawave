@@ -1,25 +1,25 @@
 package datawave.microservice.dictionary.config;
 
-import com.google.common.base.Preconditions;
-import datawave.microservice.config.accumulo.AccumuloProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
-import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Positive;
 import java.util.Map;
 
-@ConfigurationProperties(prefix = "datawave.data.dictionary")
+@ConfigurationProperties(prefix = "datawave.dictionary.data")
 @Validated
 public class DataDictionaryProperties {
     
+    @NotBlank
     private String modelName;
+    @NotBlank
     private String modelTableName;
+    @NotBlank
     private String metadataTableName;
+    @Positive
     private int numThreads;
     private Map<String,String> normalizerMap;
-    
-    @Valid
-    private AccumuloProperties accumuloProperties = new AccumuloProperties();
     
     public String getModelName() {
         return modelName;
@@ -59,14 +59,5 @@ public class DataDictionaryProperties {
     
     public void setNormalizerMap(Map<String,String> normalizerMap) {
         this.normalizerMap = normalizerMap;
-    }
-    
-    public AccumuloProperties getAccumuloProperties() {
-        return accumuloProperties;
-    }
-    
-    public void setAccumuloProperties(AccumuloProperties accumuloProperties) {
-        Preconditions.checkNotNull(accumuloProperties);
-        this.accumuloProperties = accumuloProperties;
     }
 }

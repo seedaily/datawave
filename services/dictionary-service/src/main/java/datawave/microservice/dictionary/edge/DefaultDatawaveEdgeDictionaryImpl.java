@@ -26,7 +26,6 @@ import java.util.Set;
 
 public class DefaultDatawaveEdgeDictionaryImpl implements DatawaveEdgeDictionary<DefaultEdgeDictionary,DefaultMetadata> {
     private static final Logger log = LoggerFactory.getLogger(DefaultDatawaveEdgeDictionaryImpl.class);
-    protected static final char COL_SEPARATOR = '/';
     
     private final MetadataHelperFactory metadataHelperFactory;
     

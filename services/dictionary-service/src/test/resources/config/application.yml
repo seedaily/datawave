@@ -16,8 +16,16 @@ datawave:
       - PRIVATE,PUBLIC
     type-substitutions:
       "[datawave.data.type.DateType]": "datawave.data.type.RawDateType"
-  data:
-    dictionary:
+  dictionary:
+    accumulo-properties:
+      zookeepers: "dummy"
+      instance-name: "dummy"
+      username: "root"
+      password: ""
+    edge:
+      metadata-table-name: ${metadata.table.name:DatawaveMetadata}
+      num-threads: 8
+    data:
       model-name: DATAWAVE
       model-table-name: ${metadata.table.name:DatawaveMetadata}
       metadata-table-name: ${metadata.table.name:DatawaveMetadata}
@@ -33,11 +41,6 @@ datawave:
         "[datawave.data.type.NoOpType]": "Unnormalized Text"
         "[datawave.data.type.NumberType]": "Number"
         "[datawave.data.type.TrimLeadingZerosType]": "Text"
-      accumulo-properties:
-        zookeepers: "dummy"
-        instance-name: "dummy"
-        username: "root"
-        password: ""
 
 server:
   port: 0

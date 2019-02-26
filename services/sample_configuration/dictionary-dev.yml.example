@@ -10,8 +10,16 @@ datawave:
       - PRIVATE,PUBLIC
     type-substitutions:
       "[datawave.data.type.DateType]": "datawave.data.type.RawDateType"
-  data:
-    dictionary:
+  dictionary:
+    accumulo-properties:
+      zookeepers: "localhost:2181"
+      instance-name: SETME
+      username: "root"
+      password: SETME
+    edge:
+      metadata-table-name: ${metadata.table.name:datawave.metadata}
+      num-threads: 8
+    data:
       model-name: DATAWAVE
       model-table-name: ${metadata.table.name:datawave.metadata}
       metadata-table-name: ${metadata.table.name:datawave.metadata}

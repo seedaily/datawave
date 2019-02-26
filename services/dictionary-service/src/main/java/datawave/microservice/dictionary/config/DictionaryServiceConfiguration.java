@@ -19,7 +19,7 @@ import datawave.webservice.results.datadictionary.DefaultDictionaryField;
 import datawave.webservice.results.datadictionary.DefaultFields;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
@@ -29,31 +29,18 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import java.util.List;
 
 @Configuration
+@EnableConfigurationProperties(DictionaryServiceProperties.class)
 public class DictionaryServiceConfiguration {
     @Bean
     @Qualifier("warehouse")
-    public AccumuloProperties warehouseAccumuloProperties(DataDictionaryProperties dataDictionaryProperties) {
-        return dataDictionaryProperties.getAccumuloProperties();
+    public AccumuloProperties warehouseAccumuloProperties(DictionaryServiceProperties dictionaryServiceProperties) {
+        return dictionaryServiceProperties.getAccumuloProperties();
     }
     
     @Bean
     @ConditionalOnMissingBean
     public UserAuthFunctions userAuthFunctions() {
         return UserAuthFunctions.getInstance();
-    }
-    
-    @Bean
-    @RefreshScope
-    @ConditionalOnMissingBean
-    public DataDictionaryProperties dataDictionaryConfiguration() {
-        return new DataDictionaryProperties();
-    }
-    
-    @Bean
-    @RefreshScope
-    @ConditionalOnMissingBean
-    public EdgeDictionaryProperties edgeDictionaryConfiguration() {
-        return new EdgeDictionaryProperties();
     }
     
     @Bean

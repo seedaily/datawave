@@ -162,7 +162,7 @@ public class DefaultDatawaveEdgeDictionaryImplTest {
     }
     
     private static Key generateKeyForEdgeMetadata(String source_attribute1) {
-        Text row = new Text(EDGE_TYPE + DefaultDatawaveEdgeDictionaryImpl.COL_SEPARATOR + SOURCE_RELATIONSHIP + "-" + SINK_RELATIONSHIP);
+        Text row = new Text(EDGE_TYPE + DatawaveEdgeDictionary.COL_SEPARATOR + SOURCE_RELATIONSHIP + "-" + SINK_RELATIONSHIP);
         Text colf = ColumnFamilyConstants.COLF_EDGE;
         Text colq = new Text(source_attribute1 + "-" + SINK_ATTRIBUTE1);
         Text colv = new Text("");
