@@ -8,6 +8,8 @@ import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.List;
+
 /**
  * Provides an instance of a {@link CacheInspector}.
  */
@@ -23,6 +25,28 @@ public class CacheInspectorConfiguration {
         else if (cacheManager instanceof CaffeineCacheManager)
             return new CaffeineCacheInspector(cacheManager);
         else
-            throw new IllegalArgumentException("CacheManager of type " + cacheManager.getClass() + " is unsupported.");
+            return new UnsupportedOperationCacheInspector();
+    }
+    
+    private static class UnsupportedOperationCacheInspector implements CacheInspector {
+        @Override
+        public <T> T list(String cacheName, Class<T> cacheObjectType, String key) {
+            throw new UnsupportedOperationException();
+        }
+        
+        @Override
+        public <T> List<? extends T> listAll(String cacheName, Class<T> cacheObjectType) {
+            throw new UnsupportedOperationException();
+        }
+        
+        @Override
+        public <T> List<? extends T> listMatching(String cacheName, Class<T> cacheObjectType, String substring) {
+            throw new UnsupportedOperationException();
+        }
+        
+        @Override
+        public <T> int evictMatching(String cacheName, Class<T> cacheObjectType, String substring) {
+            throw new UnsupportedOperationException();
+        }
     }
 }
