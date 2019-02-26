@@ -6,6 +6,8 @@ import datawave.microservice.config.accumulo.AccumuloProperties;
 import datawave.microservice.config.web.DatawaveServerProperties;
 import datawave.microservice.dictionary.data.DatawaveDataDictionary;
 import datawave.microservice.dictionary.data.DatawaveDataDictionaryImpl;
+import datawave.microservice.dictionary.edge.DatawaveEdgeDictionary;
+import datawave.microservice.dictionary.edge.DefaultDatawaveEdgeDictionaryImpl;
 import datawave.microservice.dictionary.http.converter.DataDictionaryHttpMessageConverter;
 import datawave.microservice.metadata.MetadataDescriptionsHelper;
 import datawave.microservice.metadata.MetadataDescriptionsHelperFactory;
@@ -48,6 +50,13 @@ public class DictionaryServiceConfiguration {
     }
     
     @Bean
+    @RefreshScope
+    @ConditionalOnMissingBean
+    public EdgeDictionaryProperties edgeDictionaryConfiguration() {
+        return new EdgeDictionaryProperties();
+    }
+    
+    @Bean
     @Scope("prototype")
     @ConditionalOnMissingBean
     public MetadataDescriptionsHelper<DefaultDescription> metadataHelperWithDescriptions(MarkingFunctions markingFunctions,
@@ -61,6 +70,12 @@ public class DictionaryServiceConfiguration {
                     ResponseObjectFactory<DefaultDescription,DefaultDataDictionary,DefaultMetadataField,DefaultDictionaryField,DefaultFields> responseObjectFactory,
                     MetadataHelperFactory metadataHelperFactory, MetadataDescriptionsHelperFactory<DefaultDescription> metadataDescriptionsHelperFactory) {
         return new DatawaveDataDictionaryImpl(markingFunctions, responseObjectFactory, metadataHelperFactory, metadataDescriptionsHelperFactory);
+    }
+    
+    @Bean
+    @ConditionalOnMissingBean
+    public DatawaveEdgeDictionary datawaveEdgeDictionary(MetadataHelperFactory metadataHelperFactory) {
+        return new DefaultDatawaveEdgeDictionaryImpl(metadataHelperFactory);
     }
     
     @Bean

@@ -3,13 +3,11 @@ package datawave.microservice.dictionary.config;
 import com.google.common.base.Preconditions;
 import datawave.microservice.config.accumulo.AccumuloProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
 import java.util.Map;
 
-@EnableConfigurationProperties(DataDictionaryProperties.class)
 @ConfigurationProperties(prefix = "datawave.data.dictionary")
 @Validated
 public class DataDictionaryProperties {

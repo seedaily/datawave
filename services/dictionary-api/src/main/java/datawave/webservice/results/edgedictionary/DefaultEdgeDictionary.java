@@ -28,8 +28,8 @@ import datawave.webservice.result.TotalResultsAware;
 @XmlRootElement(name = "EdgeDictionary")
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlAccessorOrder(XmlAccessOrder.ALPHABETICAL)
-public class DefaultEdgeDictionary extends EdgeDictionaryBase<DefaultEdgeDictionary,DefaultMetadata> implements TotalResultsAware,
-                Message<DefaultEdgeDictionary>, HtmlProvider {
+public class DefaultEdgeDictionary extends EdgeDictionaryBase<DefaultEdgeDictionary,DefaultMetadata>
+                implements TotalResultsAware, Message<DefaultEdgeDictionary>, HtmlProvider {
     
     private static final long serialVersionUID = 1L;
     private static final String TITLE = "Edge Dictionary", SEP = ", ";
@@ -48,7 +48,7 @@ public class DefaultEdgeDictionary extends EdgeDictionaryBase<DefaultEdgeDiction
             this.metadataList = null;
             setTotalResults(0);
         } else {
-            this.metadataList = new LinkedList<DefaultMetadata>(fields);
+            this.metadataList = new LinkedList<>(fields);
             setTotalResults(this.metadataList.size());
             this.setHasResults(true);
         }
@@ -88,7 +88,7 @@ public class DefaultEdgeDictionary extends EdgeDictionaryBase<DefaultEdgeDiction
         }
     }
     
-    private static final ProtostuffField<DICT_BASE> PFIELD = new ProtostuffField<DICT_BASE>(DICT_BASE.class);
+    private static final ProtostuffField<DICT_BASE> PFIELD = new ProtostuffField<>(DICT_BASE.class);
     
     @XmlTransient
     private static final Schema<DefaultEdgeDictionary> SCHEMA = new Schema<DefaultEdgeDictionary>() {
@@ -132,7 +132,7 @@ public class DefaultEdgeDictionary extends EdgeDictionaryBase<DefaultEdgeDiction
                         break;
                     case 2:
                         if (message.metadataList == null) {
-                            message.metadataList = new ArrayList<DefaultMetadata>();
+                            message.metadataList = new ArrayList<>();
                         }
                         message.metadataList.add(input.mergeObject(null, DefaultMetadata.getSchema()));
                         break;
@@ -217,8 +217,7 @@ public class DefaultEdgeDictionary extends EdgeDictionaryBase<DefaultEdgeDiction
     @Override
     public String getMainContent() {
         StringBuilder builder = new StringBuilder(2048);
-        builder.append("<div><ul>")
-                        .append("<li class=\"left\">Edge Type: Defined either by Datawave Configuration files or Edge enrichment field.</li>")
+        builder.append("<div><ul>").append("<li class=\"left\">Edge Type: Defined either by Datawave Configuration files or Edge enrichment field.</li>")
                         .append("<li class=\"left\">Edge Relationship: Defined by Datawave Configuration files</li>")
                         .append("<li class=\"left\">Edge Attribute1 Source: Defined by Datawave Configuration files and optional attributes Attribute2 and Attribute3</li>")
                         .append("<li class=\"left\">Fields: List of Field Name pairs used to generate this edge type.</li>")

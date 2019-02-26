@@ -6,7 +6,10 @@ import datawave.query.jexl.JexlASTHelper;
 import datawave.query.jexl.visitors.JexlStringBuildingVisitor;
 import datawave.query.jexl.visitors.QueryModelVisitor;
 import datawave.query.tables.ShardQueryLogic;
-import datawave.webservice.edgedictionary.DatawaveEdgeDictionary;
+import datawave.security.authorization.DatawavePrincipal;
+import datawave.security.authorization.JWTTokenHandler;
+import datawave.security.system.CallerPrincipal;
+import datawave.security.system.InternalJWTCall;
 import datawave.webservice.query.Query;
 import datawave.webservice.query.configuration.GenericQueryConfiguration;
 import datawave.webservice.results.edgedictionary.EdgeDictionaryBase;
@@ -14,8 +17,12 @@ import datawave.webservice.results.edgedictionary.MetadataBase;
 import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.commons.jexl2.parser.ASTJexlScript;
+import org.apache.deltaspike.core.api.config.ConfigProperty;
 import org.apache.log4j.Logger;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.web.reactive.function.client.WebClient;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.util.HashSet;
 import java.util.Set;
@@ -36,7 +43,22 @@ public class DefaultEdgeEventQueryLogic extends ShardQueryLogic {
     protected EdgeDictionaryBase<?,? extends MetadataBase<?>> dict;
     
     @Inject
-    protected DatawaveEdgeDictionary datawaveEdgeDictionary;
+    @CallerPrincipal
+    protected DatawavePrincipal callerPrincipal;
+    
+    @Inject
+    @InternalJWTCall
+    protected JWTTokenHandler jwtTokenHandler;
+    
+    @Inject
+    @ConfigProperty(name = "dw.edgedictionary.url", defaultValue = "http://dictionary:8080/dictionary/edge/v1/")
+    protected String edgeDictionaryURL;
+    
+    @Inject
+    @EdgeDictionaryType
+    protected ParameterizedTypeReference<? extends EdgeDictionaryBase<?,? extends MetadataBase<?>>> edgeDictionaryType;
+    
+    protected WebClient webClient;
     
     public DefaultEdgeEventQueryLogic() {}
     
@@ -50,6 +72,11 @@ public class DefaultEdgeEventQueryLogic extends ShardQueryLogic {
         this.edgeQueryModel = other.edgeQueryModel;
     }
     
+    @PostConstruct
+    public void postConstruct() {
+        webClient = WebClient.builder().baseUrl(edgeDictionaryURL).build();
+    }
+    
     @Override
     public DefaultEdgeEventQueryLogic clone() {
         return new DefaultEdgeEventQueryLogic(this);
@@ -59,7 +86,9 @@ public class DefaultEdgeEventQueryLogic extends ShardQueryLogic {
     protected EdgeDictionaryBase<?,? extends MetadataBase<?>> getEdgeDictionary(Connector connector, Set<Authorizations> auths, int numThreads)
                     throws Exception {
         
-        return this.datawaveEdgeDictionary.getEdgeDictionary(this.getMetadataTableName(), connector, auths, numThreads);
+        return webClient.get()
+                        .header("Authorization", "Bearer " + jwtTokenHandler.createTokenFromUsers(callerPrincipal.getName(), callerPrincipal.getProxiedUsers()))
+                        .retrieve().bodyToMono(edgeDictionaryType).block();
     }
     
     protected DefaultEventQueryBuilder getEventQueryBuilder() {

@@ -19,6 +19,7 @@ import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -47,6 +48,7 @@ import static datawave.microservice.http.converter.protostuff.ProtostuffHttpMess
 @RestController
 @RequestMapping(path = "/data/v1", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE, MediaType.TEXT_XML_VALUE, PROTOSTUFF_VALUE,
         MediaType.TEXT_HTML_VALUE, "text/x-yaml", "application/x-yaml"})
+@EnableConfigurationProperties(DataDictionaryProperties.class)
 public class DataDictionaryOperations<DESC extends DescriptionBase<DESC>,DICT extends DataDictionaryBase<DICT,META>,META extends MetadataFieldBase<META,DESC>,FIELD extends DictionaryFieldBase<FIELD,DESC>,FIELDS extends FieldsBase<FIELDS,FIELD,DESC>> {
     
     private final DataDictionaryProperties dataDictionaryConfiguration;

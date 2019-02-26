@@ -16,13 +16,13 @@ import datawave.query.tables.ParentQueryLogic;
 import datawave.query.tables.CountingShardQueryLogic;
 import datawave.query.tables.ShardQueryLogic;
 import datawave.query.tables.TLDQueryLogic;
+import datawave.query.tables.edge.DefaultEdgeEventQueryLogic;
 import datawave.query.tables.facets.FacetedQueryLogic;
 import datawave.query.tables.shard.FieldIndexCountQueryLogic;
 import datawave.query.transformer.EventQueryDataDecoratorTransformer;
 import datawave.query.util.DateIndexHelperFactory;
 import datawave.security.authorization.DatawavePrincipal;
 import datawave.security.system.CallerPrincipal;
-import datawave.webservice.edgedictionary.DefaultDatawaveEdgeDictionaryImpl;
 import datawave.webservice.operations.configuration.LookupBeanConfiguration;
 import datawave.webservice.query.cache.QueryExpirationConfiguration;
 import datawave.webservice.query.logic.DatawaveRoleManager;
@@ -76,8 +76,8 @@ public class LowSideWiredQueryExecutorBeanTest {
                                         EventQueryDataDecoratorTransformer.class, FieldIndexCountQueryLogic.class, CompositeQueryLogic.class,
                                         QueryMetricQueryLogic.class, TLDQueryLogic.class, ParentQueryLogic.class, DiscoveryLogic.class, IndexQueryLogic.class,
                                         QueryLogicFactoryImpl.class, NoOpQueryMetricHandler.class, DatawaveRoleManager.class, EasyRoleManager.class,
-                                        CachedResultsConfiguration.class, LookupBeanConfiguration.class, DateIndexHelperFactory.class,
-                                        DefaultDatawaveEdgeDictionaryImpl.class).addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
+                                        CachedResultsConfiguration.class, LookupBeanConfiguration.class, DateIndexHelperFactory.class)
+                        .deleteClass(DefaultEdgeEventQueryLogic.class).addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
     }
     
     @Test

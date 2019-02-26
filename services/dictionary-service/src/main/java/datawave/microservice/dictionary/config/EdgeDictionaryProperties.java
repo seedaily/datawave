@@ -1,6 +1,11 @@
-package datawave.webservice.edgedictionary;
+package datawave.microservice.dictionary.config;
 
-public class EdgeDictionaryConfiguration {
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
+
+@ConfigurationProperties(prefix = "datawave.edge.dictionary")
+@Validated
+public class EdgeDictionaryProperties {
     
     private String metadataTableName;
     private int numThreads;

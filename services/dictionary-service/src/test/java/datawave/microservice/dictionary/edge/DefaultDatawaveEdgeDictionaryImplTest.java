@@ -1,19 +1,33 @@
-package datawave.webservice.edgedictionary;
+package datawave.microservice.dictionary.edge;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
-import datawave.edge.util.EdgeKey;
+import datawave.accumulo.inmemory.InMemoryInstance;
+import datawave.data.ColumnFamilyConstants;
 import datawave.metadata.protobuf.EdgeMetadata.MetadataValue;
 import datawave.webservice.results.edgedictionary.DefaultEdgeDictionary;
 import datawave.webservice.results.edgedictionary.EventField;
 import datawave.webservice.results.edgedictionary.DefaultMetadata;
 import datawave.webservice.results.edgedictionary.MetadataBase;
 
+import org.apache.accumulo.core.client.AccumuloException;
+import org.apache.accumulo.core.client.AccumuloSecurityException;
+import org.apache.accumulo.core.client.Connector;
+import org.apache.accumulo.core.client.security.tokens.PasswordToken;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
+import org.apache.hadoop.io.Text;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -27,6 +41,8 @@ import java.util.Map;
 
 import static org.junit.Assert.fail;
 
+@RunWith(SpringRunner.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 public class DefaultDatawaveEdgeDictionaryImplTest {
     
     public static final String EDGE_TYPE = "TYPE";
@@ -44,9 +60,13 @@ public class DefaultDatawaveEdgeDictionaryImplTest {
     private static final Value EDGE_VALUE = createEdgeValue();
     private static final Collection<DefaultMetadata> METADATA = createMetadata();
     
+    private static InMemoryInstance instance = new InMemoryInstance();
+    
     SetMultimap<Key,Value> edgeMetadataRows;
-    DefaultDatawaveEdgeDictionaryImpl impl;
     Method transformResultsMethod;
+    
+    @Autowired
+    private DatawaveEdgeDictionary<DefaultEdgeDictionary,DefaultMetadata> impl;
     
     @Before
     public void setUp() {
@@ -54,7 +74,6 @@ public class DefaultDatawaveEdgeDictionaryImplTest {
         for (Map.Entry<Key,Value> entry : permuteKeysAndEdges(EDGE_KEYS, EDGE_VALUE)) {
             edgeMetadataRows.put(entry.getKey(), entry.getValue());
         }
-        impl = new DefaultDatawaveEdgeDictionaryImpl();
         transformResultsMethod = getPrivateMethod("transformResults");
     }
     
@@ -83,8 +102,8 @@ public class DefaultDatawaveEdgeDictionaryImplTest {
         Assert.assertEquals("data to be inserted contains as many rows as keys", edgeMetadataRows.keySet().size(), EDGE_KEYS.size());
         DefaultEdgeDictionary dictionary = (DefaultEdgeDictionary) transformResultsMethod.invoke(impl, edgeMetadataRows);
         Assert.assertEquals("Dictionary should now have some entries", dictionary.getTotalResults(), EDGE_KEYS.size());
-        Assert.assertTrue("METADATA not in list.  returned list: " + dictionary.getMetadataList() + " expected: " + METADATA, dictionary.getMetadataList()
-                        .containsAll(METADATA));
+        Assert.assertTrue("METADATA not in list.  returned list: " + dictionary.getMetadataList() + " expected: " + METADATA,
+                        dictionary.getMetadataList().containsAll(METADATA));
     }
     
     @Test
@@ -98,7 +117,8 @@ public class DefaultDatawaveEdgeDictionaryImplTest {
         
         // Make sure that all Metadata in EdgeDictionary have the start date set to the EARLY_DATE_FIELD
         for (MetadataBase<DefaultMetadata> meta : metadata) {
-            Assert.assertEquals("Incorrect start date. Expected: " + EARLY_DATE_FIELD + " Found: " + meta.getStartDate(), EARLY_DATE_FIELD, meta.getStartDate());
+            Assert.assertEquals("Incorrect start date. Expected: " + EARLY_DATE_FIELD + " Found: " + meta.getStartDate(), EARLY_DATE_FIELD,
+                            meta.getStartDate());
             
         }
     }
@@ -142,10 +162,12 @@ public class DefaultDatawaveEdgeDictionaryImplTest {
     }
     
     private static Key generateKeyForEdgeMetadata(String source_attribute1) {
-        EdgeKey edgeKey = EdgeKey.newBuilder(EdgeKey.EDGE_FORMAT.STANDARD).escape().setType(EDGE_TYPE).setSourceRelationship(SOURCE_RELATIONSHIP)
-                        .setSinkRelationship(SINK_RELATIONSHIP).setSourceAttribute1(source_attribute1).setSinkAttribute1(SINK_ATTRIBUTE1)
-                        .setAttribute2(ATTRIBUTE2).setAttribute3(ATTRIBUTE3).build();
-        return edgeKey.getMetadataKey();
+        Text row = new Text(EDGE_TYPE + DefaultDatawaveEdgeDictionaryImpl.COL_SEPARATOR + SOURCE_RELATIONSHIP + "-" + SINK_RELATIONSHIP);
+        Text colf = ColumnFamilyConstants.COLF_EDGE;
+        Text colq = new Text(source_attribute1 + "-" + SINK_ATTRIBUTE1);
+        Text colv = new Text("");
+        
+        return new Key(row, colf, colq, colv, Long.MAX_VALUE);
     }
     
     private static Collection<DefaultMetadata> createMetadata() {
@@ -153,8 +175,8 @@ public class DefaultDatawaveEdgeDictionaryImplTest {
         for (String source_attribute1 : SOURCE_ATTRIBUTE1) {
             DefaultMetadata metadata = new DefaultMetadata();
             metadata.setEdgeType(EDGE_TYPE);
-            metadata.setEdgeRelationship(SOURCE_RELATIONSHIP + EdgeKey.COL_SUB_SEPARATOR + SINK_RELATIONSHIP);
-            metadata.setEdgeAttribute1Source(source_attribute1 + EdgeKey.COL_SUB_SEPARATOR + SINK_ATTRIBUTE1);
+            metadata.setEdgeRelationship(SOURCE_RELATIONSHIP + "-" + SINK_RELATIONSHIP);
+            metadata.setEdgeAttribute1Source(source_attribute1 + "-" + SINK_ATTRIBUTE1);
             EventField field = new EventField();
             field.setSourceField(SOURCE_FIELD);
             field.setSinkField(SINK_FIELD);
@@ -164,5 +186,15 @@ public class DefaultDatawaveEdgeDictionaryImplTest {
             metadataList.add(metadata);
         }
         return metadataList;
+    }
+    
+    @ComponentScan(basePackages = "datawave.microservice")
+    @Configuration
+    public static class DefaultDatawaveEdgeDictionaryImplTestConfiguration {
+        @Bean
+        @Qualifier("warehouse")
+        public Connector warehouseConnector() throws AccumuloSecurityException, AccumuloException {
+            return instance.getConnector("root", new PasswordToken(""));
+        }
     }
 }

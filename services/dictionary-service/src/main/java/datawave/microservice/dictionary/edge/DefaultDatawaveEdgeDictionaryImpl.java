@@ -1,9 +1,7 @@
-package datawave.webservice.edgedictionary;
+package datawave.microservice.dictionary.edge;
 
 import com.google.common.collect.SetMultimap;
 import com.google.protobuf.InvalidProtocolBufferException;
-import datawave.configuration.spring.SpringBean;
-import datawave.edge.util.EdgeKey;
 import datawave.metadata.protobuf.EdgeMetadata;
 import datawave.metadata.protobuf.EdgeMetadata.MetadataValue;
 import datawave.query.util.MetadataHelper;
@@ -20,29 +18,22 @@ import org.apache.hadoop.io.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
-/**
- * 
- */
-public class DefaultDatawaveEdgeDictionaryImpl implements DatawaveEdgeDictionary {
+public class DefaultDatawaveEdgeDictionaryImpl implements DatawaveEdgeDictionary<DefaultEdgeDictionary,DefaultMetadata> {
     private static final Logger log = LoggerFactory.getLogger(DefaultDatawaveEdgeDictionaryImpl.class);
+    protected static final char COL_SEPARATOR = '/';
     
-    @Inject
-    @SpringBean(refreshable = true)
-    protected MetadataHelperFactory metadataHelperFactory;
+    private final MetadataHelperFactory metadataHelperFactory;
     
-    /*
-     * (non-Javadoc)
-     * 
-     * @see datawave.webservice.edgedictionary.DatawaveEdgeDictionary#getFields (java.lang.String, java.lang.String, java.lang.String,
-     * org.apache.accumulo.core.client.Connector, accumulo.core.security.Authorizations, int)
-     */
+    public DefaultDatawaveEdgeDictionaryImpl(MetadataHelperFactory metadataHelperFactory) {
+        this.metadataHelperFactory = metadataHelperFactory;
+    }
+    
     @Override
     public DefaultEdgeDictionary getEdgeDictionary(String metadataTableName, Connector connector, Set<Authorizations> auths, int numThreads) throws Exception {
         
@@ -52,10 +43,6 @@ public class DefaultDatawaveEdgeDictionaryImpl implements DatawaveEdgeDictionary
         
         // Convert them into the DataDictionary response object
         return transformResults(metadataHelper.getEdges());
-    }
-    
-    public void setMetadataHelperFactory(MetadataHelperFactory metadataHelperFactory) {
-        this.metadataHelperFactory = metadataHelperFactory;
     }
     
     // consume the iterator, parse key/value pairs into Metadata stuff
@@ -84,7 +71,7 @@ public class DefaultDatawaveEdgeDictionaryImpl implements DatawaveEdgeDictionary
             key.getColumnFamily(cf);
             key.getColumnQualifier(cq);
             
-            String[] pieces = StringUtils.split(row.toString(), EdgeKey.COL_SEPARATOR);
+            String[] pieces = StringUtils.split(row.toString(), COL_SEPARATOR);
             if (pieces.length != 2) {
                 throw new IllegalArgumentException("Invalid Edge Metadata Key:" + edgeMetadataRow.getKey());
             }
